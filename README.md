@@ -1,6 +1,6 @@
 # InformatWebservice
 
-##ExcelPowerquery
+## ExcelPowerquery
 Excel haalt gegevens van Informat rechtstreeks vanuit Informat op via PowerQuery.
 
 **Leerlingen Ophalen** is een eerste Qeury die de webservice van Informat aanspreekt en de gegevens in een tabel plaatst.
