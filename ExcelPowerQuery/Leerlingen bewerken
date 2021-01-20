@@ -1,0 +1,19 @@
+let
+    //Zowel Aloysius en Cardijn zijn twee dezelfde queries (maar halen leerling gegevens op van een andere school).
+    Bron = Table.Combine({Aloysius, Cardijn}),
+    //Nieuwe kolom die hun e-mailadres is.
+    #"Aangepaste kolom toegevoegd1" = Table.AddColumn(Bron, "Aangepast.1", each [Voornaam]&"."&[Naam]&"@student.tsaam.be"),
+    #"Namen van kolommen gewijzigd" = Table.RenameColumns(#"Aangepaste kolom toegevoegd1",{{"Aangepast.1", "E-mail"}}),
+    //Alle vreemde tekens aanpassen via GetLookUpAlias
+    #"Aangeroepen aangepaste functie" = Table.AddColumn(#"Namen van kolommen gewijzigd", "E-mail juist", each Text.Replace(GetLookUpAlias([#"E-mail"])," ","")),
+    #"Kolommen verwijderd" = Table.RemoveColumns(#"Aangeroepen aangepaste functie",{"E-mail"}),
+    #"Namen van kolommen gewijzigd1" = Table.RenameColumns(#"Kolommen verwijderd",{{"E-mail juist", "E-mail"}}),
+    #"Kolommen verwijderd1" = Table.RemoveColumns(#"Namen van kolommen gewijzigd1",{"Klas", "Klasnaam"}),
+    //Leerlingen met zelfde naam ontdubbelen aan de hand van hun unieke code
+    #"Voorwaardelijke kolom toegevoegd" = Table.AddColumn(#"Kolommen verwijderd1", "E-mail nieuw", each if ([#"E-mail"] = "leerling.Leerling@student.tsaam.be" and [#"p_persoon"] = [Informat code van Leerling Leerling 2]) then "Leerling.Leerling2@student.tsaam.be" else if ([#"E-mail"] = "Dubbel.Dubbel@student.tsaam.be" and [#"p_persoon"] = [Informatcode van dubbel dubbel2]) then "Dubbel.Dubbel2@student.tsaam.be" else [#"E-mail"]),
+    #"Kolommen verwijderd2" = Table.RemoveColumns(#"Voorwaardelijke kolom toegevoegd",{"E-mail"}),
+    #"Namen van kolommen gewijzigd2" = Table.RenameColumns(#"Kolommen verwijderd2",{{"E-mail nieuw", "E-mail"}}),
+    //Als laatste wordt een extra unieke code toegevoegd die gebruikt kan worden voor bv. barcodes.
+    #"Aangepaste kolom toegevoegd" = Table.AddColumn(#"Namen van kolommen gewijzigd2", "Unieke code", each 600000+[p_persoon])
+in
+    #"Aangepaste kolom toegevoegd"
